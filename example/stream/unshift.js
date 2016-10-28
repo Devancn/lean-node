@@ -9,15 +9,15 @@ function parseHeader(callback) {
     function onReadable() {
         var chunk;
         while (null !=(chunk = rs.read())){
-            var str =decoder.write(chunk);
+            var str =decoder.write(chunk).replace( /^\s*|\s*$/g,'');
             if(str.match(/\r\n\r\n/)){
                 var split=str.split(/\r\n\r\n/);
                 headers+=split.shift();
-                rs.removeListener('readable',onReadable);
+                rs.removeListener('readable',onReadable);//停止readable事件
                 var left=split.join('\r\n\r\n');
                 var buf=new Buffer(left);
                 if(buf.length){
-                    rs.unshift(buf)
+                    rs.unshift(buf);//相当于把读出来的流再加回缓冲里去
                 }
                 callback(headers);
             }else{
